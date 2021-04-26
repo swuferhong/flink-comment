@@ -1,0 +1,34 @@
+Flink1.9开始，Flink提供了两个Table Planner实现来执行Table API和SQL程序：Blink Planner和Old Planner，
+Old Planner在1.9前已经存在了。 Planner的作用是将关系型操作翻译为可执行的、优化后的任务。两种Planner在优化规则和执行时类都不一样，在支持的功能上也有差异。
+
+
+flink-table 构成：
+
+sqlClient： 
+
+flink-table-api-java ：  Table和SQL API，使用Java语言编写，给纯table程序编写（还在开发早期阶段，不建议使用）  [里面有环境 TableEnvironmeny]
+flink-table-api-java-bridge   ：  Table和SQL API结合DataStream/DataSet一起使用，给Java语言编写   [里面有环境： StreamTableEnvironment]
+
+flink-table-api-scale : Table和SQL API, 使用Scala语言编写，给纯table程序编写（还在开发早期阶段，不建议使用）
+flink-table-api-scale-bridge   ：  Table和SQL API结合DataStream/DataSet一起使用，给Scala语言编写
+
+flink-table-common ：  公共模块，比如自定义函数、格式等需要的依赖
+
+flink-table-planner    ：   table planner和运行时（相当于包含了老版本的planner 和 runtime）的程序。这里是1.9之前Flink的唯一的Planner，但是从1.11版本开始不推荐使用了
+
+flink-table-planner-blink  ： 新的blink Planner，从1.11版本开始成为了默认的Planner
+flink-table-runtime-blink   : 新的blink运行时
+
+
+flink-table-uber    ：  把上述模块以及Old Planner打包到一起，可以再大部分的Table & Sql API 场景下使用。打包到一起jar文件flink-table-*.jar默认会直接放到Flink的发行版的/lib目录下。
+flink-table-uber-blink ： 把上述模块以及Blink Planner打包到一起，可以在大部分Table& Sql API场景下使用，包到一起的 jar 文件 flink-table-blink-*.jar 默认会放到 Flink 发行版的 /lib 目录下。
+
+
+
+如果要使用Flink table和sql功能， 需要添加的依赖
+
+flink-table-planner_2.11
+flink-table-planner-blink_2.11
+flink-table-common
+
+
