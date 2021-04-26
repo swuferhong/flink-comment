@@ -13,6 +13,21 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Maven: io.confluent:kafka-schema-registry-client:5.5.2" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.kafka:kafka-clients:5.5.2-ccs" level="project" />
+    <orderEntry type="library" name="Maven: com.github.luben:zstd-jni:1.4.4-7" level="project" />
+    <orderEntry type="library" name="Maven: org.xerial.snappy:snappy-java:1.1.4" level="project" />
+    <orderEntry type="library" name="Maven: io.confluent:common-config:5.5.2" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.10.1" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.10.1" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.10.1" level="project" />
+    <orderEntry type="library" name="Maven: jakarta.ws.rs:jakarta.ws.rs-api:2.1.6" level="project" />
+    <orderEntry type="library" name="Maven: org.glassfish.jersey.core:jersey-common:2.30" level="project" />
+    <orderEntry type="library" name="Maven: jakarta.annotation:jakarta.annotation-api:1.3.5" level="project" />
+    <orderEntry type="library" name="Maven: org.glassfish.hk2.external:jakarta.inject:2.6.1" level="project" />
+    <orderEntry type="library" name="Maven: org.glassfish.hk2:osgi-resource-locator:1.0.3" level="project" />
+    <orderEntry type="library" name="Maven: com.sun.activation:jakarta.activation:1.2.1" level="project" />
+    <orderEntry type="library" name="Maven: io.swagger:swagger-annotations:1.6.2" level="project" />
+    <orderEntry type="library" name="Maven: io.confluent:common-utils:5.5.2" level="project" />
     <orderEntry type="module" module-name="flink-core" scope="PROVIDED" />
     <orderEntry type="module" module-name="flink-annotations" scope="PROVIDED" />
     <orderEntry type="module" module-name="flink-metrics-core" scope="PROVIDED" />
@@ -25,9 +40,6 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.flink:flink-shaded-guava:18.0-12.0" level="project" />
     <orderEntry type="module" module-name="flink-avro" />
     <orderEntry type="library" name="Maven: org.apache.avro:avro:1.10.0" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.10.1" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.10.1" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.10.1" level="project" />
     <orderEntry type="module" module-name="flink-table-api-java" scope="PROVIDED" />
     <orderEntry type="module" module-name="flink-table-common" scope="PROVIDED" />
     <orderEntry type="module" module-name="flink-connector-files" scope="PROVIDED" />
@@ -61,7 +73,6 @@
     <orderEntry type="library" scope="TEST" name="Maven: com.typesafe.akka:akka-slf4j_2.11:2.5.21" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.clapper:grizzled-slf4j_2.11:1.3.2" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.github.scopt:scopt_2.11:3.5.0" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.xerial.snappy:snappy-java:1.1.4" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.twitter:chill_2.11:0.7.6" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.twitter:chill-java:0.7.6" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.lz4:lz4-java:1.6.0" level="project" />
