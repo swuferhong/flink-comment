@@ -195,6 +195,7 @@ public class PackagedProgram {
 	 * will be a local execution by default.
 	 */
 	public void invokeInteractiveModeForExecution() throws ProgramInvocationException {
+		/*TODO mainClass：启动用户指定的全类名*/
 		callMainMethod(mainClass, args);
 	}
 
@@ -297,6 +298,7 @@ public class PackagedProgram {
 		}
 
 		try {
+			/*TODO 获取类里面的main方法*/
 			mainMethod = entryClass.getMethod("main", String[].class);
 		} catch (NoSuchMethodException e) {
 			throw new ProgramInvocationException("The class " + entryClass.getName() + " has no main(String[]) method.");
@@ -313,7 +315,8 @@ public class PackagedProgram {
 		}
 
 		try {
-			/*TODO: 核心逻辑，调用用户代码的main方法*/
+			/*TODO: 核心逻辑，调用用户代码的main方法，所有的要执行mian方法的都要来到这一步，而我现在涉及到的是CliFronted启动程序*/
+			/*TODO 当调用到这里就开始执行用户的代码，而用户的代码一般都是以StreamExecutionEnvironment.execute()结束后开始执行*/
 			mainMethod.invoke(null, (Object) args);
 		} catch (IllegalArgumentException e) {
 			throw new ProgramInvocationException("Could not invoke the main method, arguments are not matching.", e);

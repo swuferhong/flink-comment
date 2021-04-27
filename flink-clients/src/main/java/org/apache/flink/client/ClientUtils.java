@@ -89,16 +89,19 @@ public enum ClientUtils {
 			boolean enforceSingleJobExecution,
 			boolean suppressSysout) throws ProgramInvocationException {
 		checkNotNull(executorServiceLoader);
-		final ClassLoader userCodeClassLoader = program.getUserCodeClassLoader();   /*TODO 获取用户的类加载器*/
+		/*TODO 获取用户的类加载器*/
+		final ClassLoader userCodeClassLoader = program.getUserCodeClassLoader();
 		final ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
 		try {
+			/*TODO 把类加载器设置进当前线程*/
 			Thread.currentThread().setContextClassLoader(userCodeClassLoader);
 
 			LOG.info("Starting program (detached: {})", !configuration.getBoolean(DeploymentOptions.ATTACHED));
 
+			/*TODO 可能是批处理的环境信息的设置*/
 			ContextEnvironment.setAsContext(
-				executorServiceLoader,
-				configuration,
+				executorServiceLoader,    /*TODO 类加载器*/
+				configuration,   /*TODO 包含jm内存，tm内存，ha ip， slots等信息*/
 				userCodeClassLoader,
 				enforceSingleJobExecution,
 				suppressSysout);
@@ -112,7 +115,7 @@ public enum ClientUtils {
 				suppressSysout);
 
 			try {
-				/*TODO: Invoke: 调用*/
+				/*TODO: Invoke: 调用交互的执行模式*/
 				program.invokeInteractiveModeForExecution();
 			} finally {
 				ContextEnvironment.unsetAsContext();

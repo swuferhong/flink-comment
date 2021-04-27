@@ -38,6 +38,9 @@ import java.util.stream.Collectors;
  * A simple command line parser (based on Apache Commons CLI) that extracts command
  * line options.
  */
+
+/*TODO 在cliFrontend的运行开始前，对里面的参数进行解析的类*/
+
 public class CliFrontendParser {
 
 	static final Option HELP_OPTION = new Option("h", "help", false,
@@ -507,6 +510,7 @@ public class CliFrontendParser {
 		final DefaultParser parser = new DefaultParser();
 
 		try {
+			/*TODO 这里就回去调用org.apache.common.cli里的通用的参数解析函数，返回CommandLine*/
 			return parser.parse(options, args, stopAtNonOptions);
 		} catch (ParseException e) {
 			throw new CliArgsException(e.getMessage());

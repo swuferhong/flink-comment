@@ -1,0 +1,12 @@
+Flink PerJob执行的逻辑：
+
+命令行代码：
+bin/flink run -t yarn-per-job /opt/module/flink-1.12/examples/streaming/socketwindordcount.jar --port 9999
+【启动后查看运行的脚本：启动的是 org.apache.flink.client.cli.CliFronted类; 其中yarn的环境获取在sbin/config.sh中】
+
+
+启动后运行的进程：
+
+CliFrontend
+YarnJobClusterEntrypoint  =》 JobManager
+TaskExecutorRunner  =》 TaskManagerRunner

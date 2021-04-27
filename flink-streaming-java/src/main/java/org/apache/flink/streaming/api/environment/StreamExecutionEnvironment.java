@@ -1801,6 +1801,7 @@ public class StreamExecutionEnvironment {
 	 * @throws Exception which occurs during job execution.
 	 */
 
+	/*TODO 在PackagedProgram中调用callMainMethod()后，执行用户代码，如果是Stream的env最后会来到execute这里*/
 	/*TODO 执行的方法，我们在代码中，调用的就是 env.execute*/
 	public JobExecutionResult execute() throws Exception {
 		return execute(getJobName());
@@ -1821,7 +1822,7 @@ public class StreamExecutionEnvironment {
 	public JobExecutionResult execute(String jobName) throws Exception {
 		Preconditions.checkNotNull(jobName, "Streaming Job name should not be null.");
 
-		/*TODO execute的时候获取了四个图中的StreamGraph图，这里需要注意*/
+		/*TODO execute的时候获取了四个图中的StreamGraph图，这里需要注意，这里还是在Client端*/
 		/*TODO 流图中的逻辑后面需要看*/
 		/*TODO 这里还是属于CliFrontend的范畴*/
 		return execute(getStreamGraph(jobName));   /*TODO getStreamGraph返回的是StreamGraph ，然后再执行execute(StreamGraph streamGraph)的方法*/
@@ -1838,6 +1839,7 @@ public class StreamExecutionEnvironment {
 	 */
 	@Internal
 	public JobExecutionResult execute(StreamGraph streamGraph) throws Exception {
+		/*TODO 执行，返回的是JobClient*/
 		final JobClient jobClient = executeAsync(streamGraph);
 
 		try {
@@ -1940,9 +1942,10 @@ public class StreamExecutionEnvironment {
 			"Cannot find compatible factory for specified execution.target (=%s)",
 			configuration.get(DeploymentOptions.TARGET));
 
+		/*TODO 这里使用的是PipelineExecutorFactory的工厂类*/
 		CompletableFuture<JobClient> jobClientFuture = executorFactory
 			.getExecutor(configuration)
-			/*TODO 这里进去后，开始执行execute的方法*/
+			/*TODO 这里进去后，开始执行execute的方法，传入了streamGraph，用户代码加载器，配置信息*/
 			.execute(streamGraph, configuration, userClassloader);
 
 		try {

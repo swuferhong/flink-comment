@@ -77,7 +77,7 @@ public class YarnClusterClientFactory extends AbstractContainerizedClusterClient
 	}
 
 	private YarnClusterDescriptor getClusterDescriptor(Configuration configuration) {
-		/*TODO 创建了Yarn 客户端，*/
+		/*TODO 创建了Yarn 客户端，用来跟yarn做交互的*/
 		final YarnClient yarnClient = YarnClient.createYarnClient();
 		final YarnConfiguration yarnConfiguration = new YarnConfiguration();
 

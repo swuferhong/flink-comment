@@ -320,7 +320,9 @@ public class FlinkYarnSessionCli extends AbstractYarnCli {
 				zooKeeperNamespace = effectiveConfiguration.getString(HA_CLUSTER_ID, applicationId.toString());
 			}
 
+			/*TODO 插入HA的cluster_id*/
 			effectiveConfiguration.setString(HA_CLUSTER_ID, zooKeeperNamespace);
+			/*TODO 插入应用的ID*/
 			effectiveConfiguration.setString(YarnConfigOptions.APPLICATION_ID, ConverterUtils.toString(applicationId));
 			effectiveConfiguration.setString(DeploymentOptions.TARGET, YarnSessionClusterExecutor.NAME);
 		} else {
@@ -332,6 +334,7 @@ public class FlinkYarnSessionCli extends AbstractYarnCli {
 			if (!MemorySize.MemoryUnit.hasUnit(jmMemoryVal)) {
 				jmMemoryVal += "m";
 			}
+			/*TODO 获取JobManager的内存*/
 			effectiveConfiguration.set(JobManagerOptions.TOTAL_PROCESS_MEMORY, MemorySize.parse(jmMemoryVal));
 		}
 
@@ -340,10 +343,12 @@ public class FlinkYarnSessionCli extends AbstractYarnCli {
 			if (!MemorySize.MemoryUnit.hasUnit(tmMemoryVal)) {
 				tmMemoryVal += "m";
 			}
+			/*TODO 获取taskManager的总内存*/
 			effectiveConfiguration.set(TaskManagerOptions.TOTAL_PROCESS_MEMORY, MemorySize.parse(tmMemoryVal));
 		}
 
 		if (commandLine.hasOption(slots.getOpt())) {
+			/*TODO 获取Slots数*/
 			effectiveConfiguration.setInteger(TaskManagerOptions.NUM_TASK_SLOTS, Integer.parseInt(commandLine.getOptionValue(slots.getOpt())));
 		}
 

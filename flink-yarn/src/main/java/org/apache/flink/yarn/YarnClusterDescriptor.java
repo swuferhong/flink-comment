@@ -451,9 +451,9 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		boolean detached) throws ClusterDeploymentException {
 		try {
 			return deployInternal(
-				clusterSpecification,
-				"Flink per-job cluster",
-				getYarnJobClusterEntrypoint(),   /*TODO yarn创建好ApplicationMaster后，执行的类的入口类*/
+				clusterSpecification,     /*TODO 集群特有描述器信息*/
+				"Flink per-job cluster",   /*TODO 传入Flink per-job cluster*/
+				getYarnJobClusterEntrypoint(),   /*TODO yarn创建好ApplicationMaster后，执行的类的入口类  return YarnJobClusterEntrypoint.class.getName();*/
 				jobGraph,
 				detached);
 		} catch (Exception e) {
@@ -513,17 +513,20 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		checkYarnQueues(yarnClient);
 
 		// ------------------ Check if the YARN ClusterClient has the requested resources --------------
-
 		/*TODO 检查yarn是否有足够的资源*/
 
 		// Create application via yarnClient
+		/*TODO 获取yarn应用Id*/
 		final YarnClientApplication yarnApplication = yarnClient.createApplication();
+
 		final GetNewApplicationResponse appResponse = yarnApplication.getNewApplicationResponse();
 
+		/*TODO 获取最大资源的容量*/
 		Resource maxRes = appResponse.getMaximumResourceCapability();
 
 		final ClusterResourceDescription freeClusterMem;
 		try {
+			/*TODO 获取当前集群的空闲资源*/
 			freeClusterMem = getCurrentFreeClusterResources(yarnClient);
 		} catch (YarnException | IOException e) {
 			failSessionDuringDeployment(yarnClient, yarnApplication);
@@ -531,7 +534,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		}
 
 		final int yarnMinAllocationMB = yarnConfiguration.getInt(
-				YarnConfiguration.RM_SCHEDULER_MINIMUM_ALLOCATION_MB,
+				YarnConfiguration.RM_SCHEDULER_MINIMUM_ALLOCATION_MB,         /*TODO yarn单个容器最小分配的资源大小*/
 				YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_MB);
 		if (yarnMinAllocationMB <= 0) {
 			throw new YarnDeploymentException("The minimum allocation memory "
@@ -554,12 +557,13 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		LOG.info("Cluster specification: {}", validClusterSpecification);
 
 		final ClusterEntrypoint.ExecutionMode executionMode = detached ?
-				ClusterEntrypoint.ExecutionMode.DETACHED
+				ClusterEntrypoint.ExecutionMode.DETACHED    /*TODO 执行模式是什么模式，如果是detach模式的话，客户端client就可以退出了*/
 				: ClusterEntrypoint.ExecutionMode.NORMAL;
 
 		flinkConfiguration.setString(ClusterEntrypoint.EXECUTION_MODE, executionMode.toString());
 
-		/*TODO 开始启动Yarn中的AppMaster*/
+		/*TODO 开始启动Yarn中的AppMaster，*/
+		/* TODO 里面要传入的东西： flink的配置，yarn 应用id， yarn集群执行的入口，yarn客户端*/
 		ApplicationReport report = startAppMaster(
 				flinkConfiguration,
 				applicationName,

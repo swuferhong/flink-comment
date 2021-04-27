@@ -86,6 +86,8 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 /**
  * Implementation of a simple command line frontend for executing programs.
  */
+
+/*TODO yarn-perJob模式的入口，找到main方法*/
 public class CliFrontend {
 
 	private static final Logger LOG = LoggerFactory.getLogger(CliFrontend.class);
@@ -215,24 +217,28 @@ public class CliFrontend {
 	protected void run(String[] args) throws Exception {
 		LOG.info("Running 'run' command.");
 
+		/*TODO 此时的args：  -t yarn-per-job /opt/module/flink-1.12/examples/streaming/socketwindordcount.jar --port 9999 */
+
 		/*TODO 获取run动作，默认配置项*/
 		final Options commandOptions = CliFrontendParser.getRunCommandOptions();
 
-		/*TODO 根据用户指定的配置项，进行解析 */
+		/*TODO 根据用户指定的配置项，进行解析  解析-t  --port等参数 */
 		final CommandLine commandLine = getCommandLine(commandOptions, args, true);
 
 		// evaluate help flag
 		if (commandLine.hasOption(HELP_OPTION.getOpt())) {
 			CliFrontendParser.printHelpForRun(customCommandLines);
-			return;
+			return;   /*TODO -h直接退出*/
 		}
 
+		/*TODO 根据之前添加的顺序， 挨个判断是否active： Generic、Yarn、Default*/
 		final CustomCommandLine activeCommandLine =
-				validateAndGetActiveCommandLine(checkNotNull(commandLine));    /*TODO 验证活跃的命令行， 这里就是到底选择yarn 还是 standalone呢*/
+				validateAndGetActiveCommandLine(checkNotNull(commandLine));    /*TODO 验证活跃的命令行， 这里就是到底选择yarn 还是 standalone呢，有三个（generic，yarn，default）*/
 
 		final ProgramOptions programOptions = ProgramOptions.create(commandLine);
 
-		final List<URL> jobJars = getJobJarAndDependencies(programOptions);   /*TODO 获取用户job的jar包和其他依赖*/
+		/*TODO 获取用户job的jar包和其他依赖*/
+		final List<URL> jobJars = getJobJarAndDependencies(programOptions);
 
 
 		/*TODO 获取有效配置: HA的ID， target（session、per-job） 、 JobManager内存 、 TaskManager内存、 每个TM的slot数，动态配置等*/
@@ -244,7 +250,7 @@ public class CliFrontend {
 		final PackagedProgram program = getPackagedProgram(programOptions, effectiveConfiguration);
 
 		try {
-			/*TODO 核心，开始执行程序*/
+			/*TODO 核心，开始执行程序，传入的是封装后的有效配置program*/
 			executeProgram(effectiveConfiguration, program);
 		} finally {
 			program.deleteExtractedLibraries();
@@ -255,6 +261,7 @@ public class CliFrontend {
 	 * Get all provided libraries needed to run the program from the ProgramOptions.
 	 */
 	private List<URL> getJobJarAndDependencies(ProgramOptions programOptions) throws CliArgsException {
+		/*TODO 获取到-c的全类名， 已经在上一步ProgramOptions.create赋值了*/
 		String entryPointClass = programOptions.getEntryPointClassName();
 		String jarFilePath = programOptions.getJarFilePath();
 
@@ -746,6 +753,7 @@ public class CliFrontend {
 	// --------------------------------------------------------------------------------------------
 
 	protected void executeProgram(final Configuration configuration, final PackagedProgram program) throws ProgramInvocationException {
+		/*TODO 传入有效配置： effectiveConfiguration 的 program*/
 		ClientUtils.executeProgram(new DefaultExecutorServiceLoader(), configuration, program, false, false);
 	}
 
@@ -965,6 +973,7 @@ public class CliFrontend {
 		}
 
 		// get action
+		/*TODO 我们的里面就是run*/
 		String action = args[0];
 
 		// remove action from parameters
@@ -974,6 +983,7 @@ public class CliFrontend {
 			// do action
 			switch (action) {
 				case ACTION_RUN:
+					/*TODO 当写的是run的时候*/
 					run(params);
 					return 0;
 				case ACTION_RUN_APPLICATION:
@@ -1029,18 +1039,24 @@ public class CliFrontend {
 	/**
 	 * Submits the job based on the arguments.
 	 */
+
+	/*TODO args的参数
+	* TODO bin/flink run -t yarn-per-job /opt/module/flink-1.12/examples/streaming/socketwindordcount.jar --port 9999
+	* */
 	public static void main(final String[] args) {
 		EnvironmentInformation.logEnvironmentInfo(LOG, "Command Line Client", args);
 
 		// 1. find the configuration directory
+		/*TODO 获取flink的Conf目录路径*/
 		final String configurationDirectory = getConfigurationDirectoryFromEnv();
 
 		// 2. load the global configuration
+		/*TODO 根据conf路径，获取flink的配置*/
 		final Configuration configuration = GlobalConfiguration.loadConfiguration(configurationDirectory);
 
 		// 3. load the custom command lines
 
-		/*TODO 加载自定义的命令行，里面有一个commandLine,然后有三种add的方法,按顺序是Generic、Yarn、Default */
+		/*TODO 加载自定义的命令行，里面有一个commandLine,然后有三种add的方法,按顺序是Generic、YarnSession、Default */
 		final List<CustomCommandLine> customCommandLines = loadCustomCommandLines(
 			configuration,
 			configurationDirectory);
@@ -1051,6 +1067,7 @@ public class CliFrontend {
 				customCommandLines);
 
 			SecurityUtils.install(new SecurityConfiguration(cli.configuration));
+			/*TODO 执行核心逻辑 parseAndRun()*/
 			int retCode = SecurityUtils.getInstalledContext()
 					.runSecured(() -> cli.parseAndRun(args));
 			System.exit(retCode);
@@ -1107,6 +1124,7 @@ public class CliFrontend {
 	}
 
 	public static List<CustomCommandLine> loadCustomCommandLines(Configuration configuration, String configurationDirectory) {
+		/*TODO 这里是依次添加，先添加Generic，然后是YarnSession，然后是Default*/
 		List<CustomCommandLine> customCommandLines = new ArrayList<>();
 		customCommandLines.add(new GenericCLI(configuration, configurationDirectory));   // 加载命令行参数，add1， 加载的是GenericCLI
 
@@ -1114,7 +1132,7 @@ public class CliFrontend {
 		//	to prefix all options with y/yarn.
 		final String flinkYarnSessionCLI = "org.apache.flink.yarn.cli.FlinkYarnSessionCli";
 		try {
-			customCommandLines.add(    // add2,加载的是yarn的客户端
+			customCommandLines.add(    // add2,加载的是yarnSession的客户端
 				loadCustomCommandLine(flinkYarnSessionCLI,
 					configuration,
 					configurationDirectory,

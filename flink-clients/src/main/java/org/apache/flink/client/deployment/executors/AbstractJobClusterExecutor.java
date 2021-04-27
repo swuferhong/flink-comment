@@ -62,16 +62,17 @@ public class AbstractJobClusterExecutor<ClusterID, ClientFactory extends Cluster
 		/*TODO 将streamGraph转换为 作业图（JobGraph）*/
 		final JobGraph jobGraph = PipelineExecutorUtils.getJobGraph(pipeline, configuration);
 
-		/*TODO 集群描述器：创建、启动了YarnClient， 包含了一些yarn、flink的配置和其他的环境信息*/
+		/*TODO 集群描述器：创建、并 启动 了YarnClient， 包含了一些yarn、flink的配置和其他的环境信息*/
 		try (final ClusterDescriptor<ClusterID> clusterDescriptor = clusterClientFactory.createClusterDescriptor(configuration)) {
 			final ExecutionConfigAccessor configAccessor = ExecutionConfigAccessor.fromConfiguration(configuration);
 
 			/*TODO 集群特有配置，包含JobMnanager内存，TaskManager内存，每个Tm的slot数*/
 			final ClusterSpecification clusterSpecification = clusterClientFactory.getClusterSpecification(configuration);
 
-			/*TODO 核心，开始配置集群*/
+			/*TODO 核心，开始配置集群*/   /*TODO 传入了集群的特有配置，作业图*/
 			final ClusterClientProvider<ClusterID> clusterClientProvider = clusterDescriptor
 					.deployJobCluster(clusterSpecification, jobGraph, configAccessor.getDetachedMode());
+
 			LOG.info("Job has been submitted with JobID " + jobGraph.getJobID());
 
 			return CompletableFuture.completedFuture(
