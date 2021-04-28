@@ -243,6 +243,8 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 	 * The class to start the application master with. This class runs the main
 	 * method in case of the job cluster.
 	 */
+	/*TODO 当在yarn的某个Container中启动了ApplicationMaster后，就会启执行getYarnJobClusterEntrypoint这个函数*/
+	/*TODO 找到YarnJobClusterEntrypoint中的main方法开始执行*/
 	protected String getYarnJobClusterEntrypoint() {
 		return YarnJobClusterEntrypoint.class.getName();
 	}
@@ -713,17 +715,17 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 					+ "The Flink YARN client needs to store its files in a distributed file system");
 		}
 
+		/*TODO 获取了应用提交的上下文 环境信息， 下面还会继续往里面添加信息（如amContainer）*/
 		ApplicationSubmissionContext appContext = yarnApplication.getApplicationSubmissionContext();
 
+		/*TODO 获取远程路径，表示后续job封装的包 该传到哪里去*/
 		final List<Path> providedLibDirs = Utils.getQualifiedRemoteSharedPaths(configuration, yarnConfiguration);
 
-		/*TODO yarn应用的文件上传器: FS、对应的HDFS路径*/
+		/*TODO yarn应用的文件上传器: FS、对应的HDFS路径  【封装了上面的providedLibDirs】*/
 		/*TODO  用来上传：
 		* 用户的jar包、Flink的依赖，Flink的配置文件（接下来接近300行都在看这个，直接跳到fileUploader.close()）
 		* */
-
-
-
+		/*TODO YarnApplicationFileUploader*/
 		final YarnApplicationFileUploader fileUploader = YarnApplicationFileUploader.from(
 			fs,
 			getStagingDir(fs),
@@ -732,6 +734,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 			getFileReplication());
 
 		// The files need to be shipped and added to classpath.
+		/*TODO 创建了一个systemShipFiles的HashSet*/
 		Set<File> systemShipFiles = new HashSet<>(shipFiles.size());
 		for (File file : shipFiles) {
 			systemShipFiles.add(file.getAbsoluteFile());
@@ -739,6 +742,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 
 		final String logConfigFilePath = configuration.getString(YarnConfigOptionsInternal.APPLICATION_LOG_CONFIG_FILE);
 		if (logConfigFilePath != null) {
+			/*TODO 添加flink log中的log4j*/
 			systemShipFiles.add(new File(logConfigFilePath));
 		}
 
@@ -774,7 +778,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 							1));
 		}
 
-		/*TODO 保存用户提交的jar包*/
+		/*TODO 保存用户提交的jar包，userJarFiles：也是一个HashSet*/
 		final Set<Path> userJarFiles = new HashSet<>();
 		if (jobGraph != null) {
 			userJarFiles.addAll(jobGraph.getUserJars().stream().map(f -> f.toUri()).map(Path::new).collect(Collectors.toSet()));
@@ -786,6 +790,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		}
 
 		// only for per job mode
+		/*TOOD 调用了前面的上传器，上传了JobGraph中封装的信息*/
 		if (jobGraph != null) {
 			for (Map.Entry<String, DistributedCache.DistributedCacheEntry> entry : jobGraph.getUserArtifacts().entrySet()) {
 				// only upload local files
@@ -864,6 +869,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 
 		// write job graph to tmp file and add it to local resource
 		// TODO: server use user main method to generate job graph
+		/*TODO 把作业图写到一个临时文件，主要是为了安全*/
 		if (jobGraph != null) {
 			File tmpJobGraphFile = null;
 			try {
@@ -944,6 +950,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 			}
 		}
 
+		/*TODO 权限验证相关 Krb*/
 		Path remoteKrb5Path = null;
 		boolean hasKrb5 = false;
 		String krb5Config = configuration.get(SecurityOptions.KERBEROS_KRB5_PATH);
@@ -988,6 +995,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		final JobManagerProcessSpec processSpec = JobManagerProcessUtils.processSpecFromConfigWithNewOptionToInterpretLegacyHeap(
 			flinkConfiguration,
 			JobManagerOptions.TOTAL_PROCESS_MEMORY);
+		/*TODO 启动ApplicationMaster的容器*/
 		final ContainerLaunchContext amContainer = setupApplicationMasterContainer(
 				yarnClusterEntrypoint,
 				hasKrb5,
@@ -1013,10 +1021,14 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 
 
 
+
+
 		// Setup CLASSPATH and environment variables for ApplicationMaster
 
 		/*TODO 创建map，用来存储AM的环境变量和类路径*/
 		final Map<String, String> appMasterEnv = new HashMap<>();
+
+		/*TODO 往map中set信息*/
 		// set user specified app master environment variables
 		appMasterEnv.putAll(
 			ConfigurationUtils.getPrefixedKeyValuePairs(ResourceManagerOptions.CONTAINERIZED_MASTER_ENV_PREFIX, configuration));
@@ -1055,6 +1067,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		Utils.setupYarnClassPath(yarnConfiguration, appMasterEnv);
 
 		/*TODO 将之前封装的map（AM的环境信息、类路径）， 设置到容器里面*/
+		/*TODO 容器这个对象是上面封装的，ContainerLaunchContext */
 		amContainer.setEnvironment(appMasterEnv);
 
 		// Set up resource type requirements for ApplicationMaster
@@ -1066,6 +1079,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 
 		appContext.setApplicationName(customApplicationName);
 		appContext.setApplicationType(applicationType != null ? applicationType : "Apache Flink");
+		/*TODO amContainer又继续封装到appContext中*/
 		appContext.setAMContainerSpec(amContainer);
 		appContext.setResource(capability);
 
@@ -1092,6 +1106,10 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		/*TODO 前面做了很多上传、环境配置，封装了很多层 appMasterEnv -> amContainer -> appContext. 在这里终于通过yarn客户端开始提交了*/
 		/*TODO  这里点进去后， 就是yarn的源码了，而不是flink的源码了*/
 		yarnClient.submitApplication(appContext);
+
+		/*TODO 这里启动之后，就会启动一个ApplicationMaster容器，
+		 *TODO  在AM中执行的类是，是我们在这个过程中一直封装的 getYarnJobClusterEntrypoint()的入口类
+		 * */
 
 
 

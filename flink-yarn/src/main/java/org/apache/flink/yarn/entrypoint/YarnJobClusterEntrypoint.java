@@ -39,6 +39,7 @@ import java.util.Map;
 /**
  * Entry point for Yarn per-job clusters.
  */
+/*TODO 不同的模式有不同的入口类，Job模式、Session模式、Application模式*/
 public class YarnJobClusterEntrypoint extends JobClusterEntrypoint {
 
 	public YarnJobClusterEntrypoint(Configuration configuration) {
@@ -61,7 +62,7 @@ public class YarnJobClusterEntrypoint extends JobClusterEntrypoint {
 
 	// ------------------------------------------------------------------------
 	//  The executable entry point for the Yarn Application Master Process
-	//  for a single Flink job.
+	//  for a single Flink job.  per-job模式
 	// ------------------------------------------------------------------------
 	/*TODO 以后遇到EntryPoint， 就要明白这是一个入口类*/
 
@@ -89,6 +90,7 @@ public class YarnJobClusterEntrypoint extends JobClusterEntrypoint {
 			args,
 			new DynamicParametersConfigurationParserFactory(),
 			YarnJobClusterEntrypoint.class);
+		/*TODO 前面的这些代码都是为了封装这个配置对象*/
 		final Configuration configuration = YarnEntrypointUtils.loadConfiguration(workingDirectory, dynamicParameters, env);
 
 		YarnJobClusterEntrypoint yarnJobClusterEntrypoint = new YarnJobClusterEntrypoint(configuration);

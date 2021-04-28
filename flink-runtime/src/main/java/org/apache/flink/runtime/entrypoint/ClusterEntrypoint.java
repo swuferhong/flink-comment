@@ -170,6 +170,7 @@ public abstract class ClusterEntrypoint implements AutoCloseableAsync, FatalErro
 			SecurityContext securityContext = installSecurityContext(configuration);
 
 			securityContext.runSecured((Callable<Void>) () -> {
+				/*TODO 启动集群，启动的是Flink相关的集群吗？*/
 				runCluster(configuration, pluginManager);
 
 				return null;
@@ -218,7 +219,16 @@ public abstract class ClusterEntrypoint implements AutoCloseableAsync, FatalErro
 
 			final DispatcherResourceManagerComponentFactory dispatcherResourceManagerComponentFactory = createDispatcherResourceManagerComponentFactory(configuration);
 
+
+			/*TODO JobManager中包含三个组件：
+			*
+			* TODO dispatcher
+			* TODO resourceManager: Flink里面管制员的
+			* TODO jobMaster
+			* */
+
 			/*TODO 创建和启动JobManager里的组件：Dispatcher、ResourceManager、 JobMaster*/
+			/*TODO 首先要清楚这里的RM和yarn中的RM不一样*/
 			clusterComponent = dispatcherResourceManagerComponentFactory.create(
 				configuration,
 				ioExecutor,
@@ -528,6 +538,7 @@ public abstract class ClusterEntrypoint implements AutoCloseableAsync, FatalErro
 
 		final String clusterEntrypointName = clusterEntrypoint.getClass().getSimpleName();
 		try {
+			/*TODO 启动集群*/
 			clusterEntrypoint.startCluster();
 		} catch (ClusterEntrypointException e) {
 			LOG.error(String.format("Could not start cluster entrypoint %s.", clusterEntrypointName), e);
